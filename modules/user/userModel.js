@@ -1,3 +1,4 @@
+import { string } from "joi";
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
@@ -10,6 +11,11 @@ const userSchema = new Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  role : {
+    type : String,
+    enum : ['User','Admin'],
+    default : 'User',
   },
   email: {
     type: String, // Capital S
@@ -26,12 +32,8 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
-  cartItems: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Product", // reference to Product model
-    },
-  ],
 }, { timestamps: true }); // optional but good practice
 
-export default model("User", userSchema);
+const userModel = model('User',userSchema);
+
+export default userModel;
