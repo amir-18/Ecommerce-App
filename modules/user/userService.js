@@ -1,13 +1,17 @@
 import userModel from "./userModel.js"; // Added .js extension
-
+import bcrypt from 'bcrypt';
 export const registerService = async (userData) => {
     const existingUser = await userModel.findOne({ email: userData.email });
     if (existingUser) {
-        // This will be caught by the Controller's catch block
-        throw new Error('User with this email already exists');
+     throw new Error('User with this email already exists');
     }
     
-    // You don't necessarily need a try/catch here if you're just re-throwing
+    const password  = userData.password;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    userData.password = hashedPassword;
     const user = await userModel.create(userData);
+    user.save();
+    const token = user.generateAuthToken();
+    user.token = token;
     return user;
 };
