@@ -18,12 +18,15 @@ export const registerService = async (userData) => {
 };
 
 export const loginService = async (userData) => {
-    const User = await userModel.find({email : userData.email});
-    if(!User){
+    const user = await userModel.findOne({email : userData.email});
+    if(!user){
         throw new Error('User Doesnt Exist');
     }
-    const isPasswordValid = bcrypt.compare(userData.password,User.password);
+    const isPasswordValid = await bcrypt.compare(userData.password,user.password);
     if(!isPasswordValid){
         throw new Error('Invalid Credentials');
     }
+    const token = user.generateAuthToken();
+    user.token = token;
+    return user;
 }

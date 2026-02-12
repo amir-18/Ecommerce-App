@@ -22,6 +22,7 @@ export const loginController = async (req,res,next) => {
     try{
         const userData = req.body;
         const user = await loginService(userData);
+        const token = user.token;
         res.cookie('token',token, {
             httpOnly : true,
             sameSite : 'strict',
