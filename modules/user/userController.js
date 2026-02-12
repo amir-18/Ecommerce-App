@@ -1,5 +1,5 @@
 import { registerService } from './userService.js'; // Ensure .js is here
-
+import { loginService } from './userService.js';
 export const registerController = async (req, res, next) => {
     try {
         const userData = req.body;
@@ -15,5 +15,24 @@ export const registerController = async (req, res, next) => {
         });
     } catch (error) {
         next(error); // This sends the error to your global error handler
+    }
+};
+
+export const loginController = async (req,res,next) => {
+    try{
+        const userData = req.body;
+        const user = await loginService(userData);
+        res.cookie('token',token, {
+            httpOnly : true,
+            sameSite : 'strict',
+            secure : process.env.NODE_ENV === 'production',
+            maxAge : 7 * 24 * 60 * 60 * 1000,
+        }).status(200).json({
+            message : 'User Logged In Successfully',
+            success : true
+        })
+    }
+    catch(error){
+        next(error);
     }
 };
