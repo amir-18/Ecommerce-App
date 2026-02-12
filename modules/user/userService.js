@@ -1,5 +1,6 @@
 import userModel from "./userModel.js"; // Added .js extension
 import bcrypt from 'bcrypt';
+
 export const registerService = async (userData) => {
     const existingUser = await userModel.findOne({ email: userData.email });
     if (existingUser) {
@@ -15,3 +16,14 @@ export const registerService = async (userData) => {
     user.token = token;
     return user;
 };
+
+export const loginService = async (userData) => {
+    const User = await userModel.find({email : userData.email});
+    if(!User){
+        throw new Error('User Doesnt Exist');
+    }
+    const isPasswordValid = bcrypt.compare(userData.password,User.password);
+    if(!isPasswordValid){
+        throw new Error('Invalid Credentials');
+    }
+}
