@@ -29,4 +29,4 @@ export const loginService = async (userData) => {
     const token = user.generateAuthToken();
     user.token = token;
     return user;
-}
+};

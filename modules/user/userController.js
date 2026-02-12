@@ -37,3 +37,10 @@ export const loginController = async (req,res,next) => {
         next(error);
     }
 };
+
+export const logoutController =  (req,res) => {
+    res.clearCookie('token').status(200).json({
+        success : true,
+        message : "User Logged Out Successfully"
+    });
+}
