@@ -9,7 +9,7 @@ export const createProductController = async (req,res,next) => {
             data : product,
             message : 'Product Created Successfully',
         })
-        console.log(product);
+        console.log(`Product Created: ${product.name}`);
     }
     catch(error){
         next(error);
