@@ -11,7 +11,8 @@ export const registerController = async (req, res, next) => {
             maxAge : 7 * 24 * 60 * 60 * 1000, // 7 days
         }).status(200).json({
             message : 'User Registered Successfully',
-            success : true
+            success : true,
+            data : user
         });
     } catch (error) {
         next(error); // This sends the error to your global error handler

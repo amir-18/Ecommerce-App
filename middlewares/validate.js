@@ -10,7 +10,7 @@ const validateRequest = (schema) => (req,res,next) => {
         });
     }
 
-    req.body = value;
+    
     next();
 }
 export default validateRequest;
