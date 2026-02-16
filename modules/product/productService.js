@@ -7,3 +7,11 @@ export const createProduct = async (productData) => {
     }
     return product;
 };
+
+export const deleteProduct = async (productId) => {
+    const deletedProduct = await productModel.findByIdAndDelete(productId);
+    if(!deletedProduct){
+        throw new Error('Product Cant Be Deleted');
+    }
+    return deletedProduct;
+}

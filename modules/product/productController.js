@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProduct } from './productService.js';
+import { createProduct,deleteProduct } from './productService.js';
 
 export const createProductController = async (req,res,next) => {    
     try{
@@ -13,3 +13,17 @@ export const createProductController = async (req,res,next) => {
         next(error);
     }
 };
+
+export const deleteProductController = async (req,res,next) => {
+    try{
+        const productId = req.params.productid;
+        const deletedProduct = await deleteProduct(productId);
+        res.status(201).json({
+            success : true,
+            message : `${deletedProduct.name} has been deleted `
+        });
+    }
+    catch(error){
+        next(error);
+    }
+}
