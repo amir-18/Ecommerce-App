@@ -1,5 +1,6 @@
 import express from 'express';
 import userRoutes from './modules/user/userRoutes.js';
+import cartRoutes from './modules/cart/cartRoutes.js';
 import productRoutes from './modules/product/productRoutes.js';
 import errorHandler from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
@@ -14,5 +15,6 @@ app.use(express.urlencoded({extended : true}));
 // ROUTES
 app.use('/api/users', userRoutes);
 app.use('/api/product' , productRoutes);
+app.use('/api/cart', cartRoutes);
 // ERROR HANDLER (Must be last)
 app.use(errorHandler);
