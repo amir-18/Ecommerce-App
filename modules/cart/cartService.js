@@ -26,5 +26,4 @@ export const addToCart = async (userid,productid,quantity) => {
     };
     await Cart.save();
     return Cart;
-
 }
