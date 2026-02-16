@@ -14,4 +14,12 @@ export const deleteProduct = async (productId) => {
         throw new Error('Product Cant Be Deleted');
     }
     return deletedProduct;
+};
+
+export const updateProduct = async(productId,productData) => {
+    const updatedProduct = await productModel.findOneAndUpdate({_id : productId}, productData,{new:true});
+    if(!updatedProduct){
+        throw new Error('Product Cant Be Updated');
+    }
+    return updatedProduct;
 }
