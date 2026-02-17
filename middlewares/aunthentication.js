@@ -23,26 +23,44 @@ export const alreadyAuth =  (req,res,next) => {
         }
 
 export const Authorized = (req,res,next) => {
-    const token = req.cookies.token;
+    const token = generateToken(req,res);
     if(!token){
-        req.clearCookie();
+        return res.clearCookie('token').send('Please Login');
+    }
+
+    if(token.role !== 'Admin'){
+        return res.send('You Arent Authenticated To Access This Route');
+    }
+    req.user = token;
+    next();
+    
+};
+
+// Verify JWT TOKEN
+const generateToken = (req,res,next) => {
+    const token = req.cookies.token;
+    let data = null;
+    if(!token){
+        res.clearCookie();
+       return data = false;
     }
     try{
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
-
-        if(decoded.role == 'Admin'){
-            return next();
-        }
-        else{
-            res.send('You Are Not Authenticated To Access This Route')
-        }
+        data = decoded;
     }
     catch(error){
-        res.clearCookie();
-        return next(error);
+        data = false;
     }
+
+    return data;
     
+};
+
+export const Authenticated = (req,res,next) => {
+    const token = generateToken(req,res);
+    if(!token){
+        res.clearCookie('token').send('You Arent Authenticated To Access This Route')
+    }
+    req.user = token;
+    next();
 }
-
-
-

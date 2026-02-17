@@ -40,4 +40,4 @@ export const removeFromCart = async (productid,userid) => {
     }
 
     return deletedCart;
-}
+};

@@ -3,12 +3,10 @@ import jwt from 'jsonwebtoken';
 import { addToCart, removeFromCart } from './cartService.js';
 
 export  const  addToCartController =  async (req,res,next) => {
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token,process.env.JWT_SECRET);
-    const userdata = decoded._id;
+    const token = req.user._id;
+    const userdata = token;
     const product = req.params.productid;
-    const quantity = req.body.quantity;
-    
+    const quantity = req.body.quantity || 1; 
     try{
         const Cart = await addToCart(userdata,product,quantity);
         res.status(201).json({
@@ -25,11 +23,10 @@ export  const  addToCartController =  async (req,res,next) => {
 };
 
 export const removeCartController = async (req,res,next) => {
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token,process.env.JWT_SECRET);
+    const token = req.user
 
     try{
-    const userid = decoded._id;
+    const userid = token._id;
     const productid = req.params.productid;
     const removedProduct = await removeFromCart(productid,userid);
     res.status(201).json({
