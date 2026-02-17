@@ -41,3 +41,8 @@ export const removeFromCart = async (productid,userid) => {
 
     return deletedCart;
 };
+
+export const getCartItems = async (userid) => {
+    const cartItems = await cartModel.find({user : userid}).populate('items');
+    return cartItems;
+}

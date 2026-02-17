@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { addToCart, removeFromCart } from './cartService.js';
+import { addToCart, removeFromCart , getCartItems } from './cartService.js';
 
 export  const  addToCartController =  async (req,res,next) => {
     const token = req.user._id;
@@ -39,4 +39,25 @@ export const removeCartController = async (req,res,next) => {
         next(error);
     }
    
+}
+
+export const showItemsController = async (req,res,next) => {
+    try{
+        const userid = req.user._id;
+        const cartItems = await getCartItems(userid);
+        if(!cartItems  || cartItems.length < 1 ){
+            return res.status(201).json({
+                success : true,
+                message : 'Your Cart is Empty'
+            })
+        }
+        res.status(200).json({
+            success : true,
+            message : 'Here Are Your Cart Items',
+            data : cartItems
+        })
+    }
+    catch(error){
+        next(error);
+    }
 }

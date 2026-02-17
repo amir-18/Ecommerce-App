@@ -1,6 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 
+
+//Already Authenticated Middleware
 export const alreadyAuth =  (req,res,next) => {
     const token = req.cookies.token;
 
@@ -22,6 +24,8 @@ export const alreadyAuth =  (req,res,next) => {
     }
         }
 
+
+//Authorization Middleware
 export const Authorized = (req,res,next) => {
     const token = generateToken(req,res);
     if(!token){
@@ -56,6 +60,7 @@ const generateToken = (req,res,next) => {
     
 };
 
+//Authentication Middleware
 export const Authenticated = (req,res,next) => {
     const token = generateToken(req,res);
     if(!token){
