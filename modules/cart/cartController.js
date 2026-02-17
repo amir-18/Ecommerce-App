@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { addToCart } from './cartService.js';
+import { addToCart, removeFromCart } from './cartService.js';
 
 export  const  addToCartController =  async (req,res,next) => {
     const token = req.cookies.token;
@@ -22,4 +22,24 @@ export  const  addToCartController =  async (req,res,next) => {
     }
 
 
+};
+
+export const removeCartController = async (req,res,next) => {
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token,process.env.JWT_SECRET);
+
+    try{
+    const userid = decoded._id;
+    const productid = req.params.productid;
+    const removedProduct = await removeFromCart(productid,userid);
+    res.status(201).json({
+        success : true,
+        message : 'Product Removed From Cart Successfully',
+        data : removedProduct
+    });
+    }
+    catch(error){
+        next(error);
+    }
+   
 }

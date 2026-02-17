@@ -22,7 +22,7 @@ export const alreadyAuth =  (req,res,next) => {
     }
         }
 
-export const Authenticated = (req,res,next) => {
+export const Authorized = (req,res,next) => {
     const token = req.cookies.token;
     if(!token){
         req.clearCookie();
@@ -43,4 +43,6 @@ export const Authenticated = (req,res,next) => {
     }
     
 }
+
+
 

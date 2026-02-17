@@ -26,4 +26,18 @@ export const addToCart = async (userid,productid,quantity) => {
     };
     await Cart.save();
     return Cart;
+};
+
+export const removeFromCart = async (productid,userid) => {
+    const deletedCart = await cartModel.findOneAndUpdate(
+{user : userid},
+{$pull :
+     {items : {product : productid}}},
+{new : true}
+    );
+    if(!deletedCart){
+        throw new Error('Cart Item Cant Be Removed');
+    }
+
+    return deletedCart;
 }
