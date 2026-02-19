@@ -1,4 +1,4 @@
-import express from express;
+import express from 'express';
 import { checkoutController } from "./paymentController.js";
 import { Authenticated } from "../../middlewares/aunthentication.js";
 const router = express.Router();
