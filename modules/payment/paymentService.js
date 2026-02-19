@@ -38,30 +38,40 @@ export const createCheckoutSession = async (productid, userid) => {
 };
 
 export const createCartCheckoutSession = async (userid) => {
-    const cartItems = await cartModel.find({user : userid});
-    const line_items = cartItems.map(item => ({
-       price_data: {
-        currency: 'usd',
-        product_data: {
-            name: item.name,
-            images: [item.image], 
-            description: item.description,
-        },
-        // Standardize to cents
-        unit_amount: Math.round(item.price * 100), 
-    },
-    quantity: item.quantity,
-    }));
+
+    const cart = await cartModel.findOne({ user: userid }).populate('items.product');
+
+    if (!cart || cart.items.length === 0) {
+        throw new Error("Cart is empty");
+    }
+
+    const lineitems = cart.items.map(item => {
+        if (!item.product || !item.product.name) {
+            console.error("Product details missing for ID:", item.product);
+            return null;
+        }
+
+        return {
+            price_data: {
+                currency: 'usd',
+                product_data: {
+                    name: item.product.name, // 
+                    images: [item.product.image], 
+                    description: item.product.description,
+                },
+            
+                unit_amount: Math.round(item.product.price * 100), 
+            },
+            quantity: item.quantity,
+        };
+    }).filter(i => i !== null); // Remove broken items
 
     return await stripe.checkout.sessions.create({
-        mode : 'payment',
-        payment_method_types : ['card'],
-        metadata : {
-            userId : userid,
-            cartId : cartItems._id
-        },
-        success_url : 'https://google.com',
-        cancel_url : 'https://youtube.com',
-        line_items : line_items
+        mode: 'payment',
+        payment_method_types: ['card'],
+        metadata: { userId: userid.toString() },
+        success_url: 'https://google.com',
+        cancel_url: 'https://youtube.com',
+        line_items: lineitems
     });
 }

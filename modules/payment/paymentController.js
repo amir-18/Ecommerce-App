@@ -13,7 +13,7 @@ export const checkoutController = async (req,res) => {
 };
 
 export const cartCheckoutController = async (req,res) => {
-    const userid = req.user_id;
+    const userid = req.user._id;
     const cartSession = await createCartCheckoutSession(userid);
 
     if(!cartSession){
@@ -22,7 +22,7 @@ export const cartCheckoutController = async (req,res) => {
             message : 'Checkout Failed'
         })
         }
-        
+
         res.status(400).json({
             success : true,
             message : 'Checkout Session Created',
