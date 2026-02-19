@@ -19,7 +19,7 @@ const orderSchema = new Schema({
         default: 1,
         required: true
       },
-      price: {
+      price: {                
         type: Number,
         required: true    // store price at order time
       }
