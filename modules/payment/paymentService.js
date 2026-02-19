@@ -1,8 +1,10 @@
 import Stripe from 'stripe';
-
+import productModel from '../product/productModel.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const createCheckoutSession = async (productdata, userid) => {
+const createCheckoutSession = async (productid, userid) => {
+
+    const productdata = await productModel.findById(productid);
     // Ensure price exists, otherwise default to 0 to avoid NaN
     const priceInCents = Math.round((productdata.price || 0) * 100);
 

@@ -3,7 +3,7 @@ import { checkoutController } from "./paymentController.js";
 import { Authenticated } from "../../middlewares/aunthentication.js";
 const router = express.Router();
 
-router.post('/create-checkout',Authenticated,checkoutController);
+router.post('/create-checkout/:productid',Authenticated,checkoutController);
 
 
 
