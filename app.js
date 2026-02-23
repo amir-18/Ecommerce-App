@@ -20,3 +20,7 @@ app.use('/api/product' , productRoutes);
 app.use('/api/cart', cartRoutes);
 // ERROR HANDLER (Must be last)
 app.use(errorHandler);
+
+app.get('/',(req,res) => {
+    console.log('New Pc');
+})
