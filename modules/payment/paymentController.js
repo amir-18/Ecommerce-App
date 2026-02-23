@@ -1,5 +1,9 @@
 import {createCheckoutSession, createCartCheckoutSession} from "./paymentService.js";
 import express from 'express';
+import stripe from 'stripe';
+
+
+const stripe = new stripe(process.env.STRIPE_SECRET_KEY);
 
 export const checkoutController = async (req,res) => {
     const productid = req.params.productid;
@@ -29,4 +33,40 @@ export const cartCheckoutController = async (req,res) => {
             data : `${cartSession.url}`
         })
 
+}
+
+export const stripeWebhook = async (req,res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try{
+        event = stripe.webhooks.constructEvent(
+            req.body,
+            sig,
+            STRIPE_WEBHOOK_SECRET
+        );
+    }
+    catch(err){
+        next(err);
+    }
+
+    if(event == 'checkout.session.completed'){
+        session = event.data.object;
+
+        const {type,userId,productId} = session.metadata;
+        try{
+            if(type == 'cart'){
+                const cart = await cart.findByIdAndUpdate({userid : userId}, {$set : {items : []}});
+                console.log("Users Cart Emptied Successfully");
+            }
+            if(type == 'single_product'){
+                console.log('Bought Successfuly');
+            }
+
+            const Order =
+        }
+       
+
+
+    }
 }
