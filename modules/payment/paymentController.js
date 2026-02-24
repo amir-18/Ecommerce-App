@@ -39,72 +39,106 @@ export const cartCheckoutController = async (req,res,) => {
 };
 
 
-export const stripeWebhook = async (req,res,next) => {
-    const signature = req.headers['stripe-signature'];
-    let event = null;
-    try{
-         event = stripe.webhooks.constructEvent(
-            req.body,signature,process.env.STRIPE_WEBHOOK_SECRET
-        );
+
+export const stripeWebhook = async (req, res) => {
+  const signature = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (error) {
+    console.log("Signature verification failed:", error.message);
+    return res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+
+  if (event.type !== 'checkout.session.completed') {
+    return res.status(200).send('Event ignored');
+  }
+
+  try {
+    const session = event.data.object;
+
+    if (session.payment_status !== 'paid') {
+      return console.log('Payment Not Cleared')
     }
-    catch(error){
-        error.message = 'Invalid Signature';
-        next(error);
+
+    const existingOrder = await orderModel.findOne({ stripe_id: session.id });
+    if (existingOrder) {
+      return res.status(200).send('Already processed');
     }
 
-      if(event.type == 'checkout.session.completed'){
-            const session = event.data.object
-            if(session.payment_status == 'unpaid'){
-                return console.log('Payment Not Cleared');
-            }
-             const {type,productId,userId} = session.metadata;
-             const shipping = session.shipping;
-            const shippingString = `${shipping.name}, ${shipping.address.line1}${shipping.address.line2 ? ', ' + shipping.address.line2 : ''}, ${shipping.address.city}, ${shipping.address.state}, ${shipping.address.postal_code}, ${shipping.address.country}`;
-            let orderItems = [];
+    const metadata = session.metadata || {};
+    const { type, productId, userId } = metadata;
+    if (!userId || !type) return res.status(400).send('Missing metadata');
 
-            if(type == 'cart_checkout'){
-                const cartItems = await cartModel.find({user : userId}).populate('items.product');
-                 orderItems = cartItems.map(item => ({
-                    product: item.items.product._id,
-                    quantity: item.items.quantity
-                    ,price: item.items.product.price}));
+    // Safe shipping
+    const shipping = session.shipping || {};
+    const address = shipping.address || {};
+    const shippingString = shipping.name
+      ? `${shipping.name}, ${address.line1 || ''}${address.line2 ? ', ' + address.line2 : ''}, ${address.city || ''}, ${address.state || ''}, ${address.postal_code || ''}, ${address.country || ''}`
+      : 'No shipping provided';
 
-            }
+    let orderItems = [];
 
-        
+    if (type === 'cart_checkout') {
+      // FIND cart AND POPULATE product
+      const cart = await cartModel
+        .findOne({ user: userId })
+        .populate('items.product');
 
-        else if (type == 'single_checkout'){
-            const product = await productModel.findById(productId);
-           orderItems = [{
-    product: product._id,
-    quantity: 1,
-    price: product.price
-}]
-        
-        }
+      if (!cart || cart.items.length === 0) return res.status(400).send('Cart empty');
 
-            const order = await orderModel.create({
-                stripe_id : session.id,
-                user : userId,
-                items : orderItems,
-                totalPrice : session.amount_total / 100,
-                shippingAddress : shippingString,
-                status : 'paid',
-                payment_method : session.payment_method_types
-            })
+      orderItems = cart.items.map(item => ({
+        product: item.product._id, // populated, so we can safely access _id, price, name...
+        quantity: item.quantity,
+        price: item.product.price
+      }));
 
-            res.status(201).json({
-                success : true,
-                message : 'Order Has Been Created',
-                data : order
-            })
+      // Clear cart
+      cart.items = [];
+      await cart.save();
+    }
 
-        }
-        else{
-            res.status(201).json({
-                success : false,
-                message : 'Checkout Failed',
-            })
-        }
-}
+    else if (type === 'single_checkout') {
+      const product = await productModel.findById(productId);
+      if (!product) return res.status(400).send('Product not found');
+
+      orderItems = [{
+        product: product._id,
+        quantity: 1,
+        price: product.price
+      }];
+    }
+
+    else return res.status(400).send('Invalid checkout type');
+
+    // Calculate total
+    const totalPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // Create order
+    const order = await orderModel.create({
+      stripe_id: session.id,
+      user: userId,
+      items: orderItems,
+      totalPrice,
+      shippingAddress: shippingString,
+      status: 'paid',
+      payment_method: 'card'
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order created successfully',
+      data: order
+    });
+
+  } catch (error) {
+    console.log("Webhook processing error:", error);
+    return res.status(500).send('Internal Server Error');
+  }
+};
 

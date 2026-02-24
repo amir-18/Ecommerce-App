@@ -8,7 +8,7 @@ const orderSchema = new Schema({
     required: true
   },
   stripe_id : {
-    type : string,
+    type : String,
     required : true
   },
   items: [

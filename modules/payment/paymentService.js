@@ -17,6 +17,7 @@ export const createCheckoutSession = async (productid, userid) => {
         cancel_url: 'https://google.com',
         // FIXED: Key must be 'metadata', NOT 'meta_data'
         metadata: {
+            type : 'single_checkout',
             userId: userid.toString(),
             productId: productdata._id?.toString()
         },
@@ -33,7 +34,26 @@ export const createCheckoutSession = async (productid, userid) => {
                 },
                 quantity: 1
             }
-        ]
+        ],
+        shipping_address_collection: {
+    allowed_countries: ['US', 'PK'] // whatever countries you allow
+},
+        shipping_options: [
+    {
+        shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+                amount: 500, // in cents (5.00 USD)
+                currency: 'usd'
+            },
+            display_name: 'Standard Shipping',
+            delivery_estimate: {
+                minimum: { unit: 'business_day', value: 3 },
+                maximum: { unit: 'business_day', value: 5 }
+            }
+        }
+    }
+]
     });
 };
 
@@ -69,9 +89,28 @@ export const createCartCheckoutSession = async (userid) => {
     return await stripe.checkout.sessions.create({
         mode: 'payment',
         payment_method_types: ['card'],
-        metadata: { userId: userid.toString() },
+        metadata: {  type : 'cart_checkout' , userId: userid.toString() },
         success_url: 'https://google.com',
         cancel_url: 'https://youtube.com',
-        line_items: lineitems
+        line_items: lineitems,
+        shipping_address_collection: {
+    allowed_countries: ['US', 'PK'] // whatever countries you allow
+},
+        shipping_options: [
+    {
+        shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+                amount: 500, // in cents (5.00 USD)
+                currency: 'usd'
+            },
+            display_name: 'Standard Shipping',
+            delivery_estimate: {
+                minimum: { unit: 'business_day', value: 3 },
+                maximum: { unit: 'business_day', value: 5 }
+            }
+        }
+    }
+]
     });
 }
