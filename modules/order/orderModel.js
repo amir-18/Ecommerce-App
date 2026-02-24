@@ -7,6 +7,10 @@ const orderSchema = new Schema({
     ref: "User",       // links to the user who placed the order
     required: true
   },
+  stripe_id : {
+    type : string,
+    required : true
+  },
   items: [
     {
       product: {

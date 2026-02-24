@@ -1,4 +1,5 @@
 import express from 'express';
+import { stripeWebhook } from './modules/payment/paymentController.js';
 import userRoutes from './modules/user/userRoutes.js';
 import paymentRoutes from './modules/payment/paymentRoutes.js';
 import cartRoutes from './modules/cart/cartRoutes.js';
@@ -8,6 +9,13 @@ import cookieParser from 'cookie-parser';
 const app = express();
 export default app;
 
+
+
+app.post(
+    '/webhook', 
+    express.raw({ type: 'application/json' }), 
+    stripeWebhook
+);
 // MIDDLEWARES
 app.use(cookieParser());
 app.use(express.json());
@@ -21,6 +29,3 @@ app.use('/api/cart', cartRoutes);
 // ERROR HANDLER (Must be last)
 app.use(errorHandler);
 
-app.get('/',(req,res) => {
-    console.log('New Pc');
-})
