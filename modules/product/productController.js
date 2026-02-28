@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProduct,deleteProduct,updateProduct } from './productService.js';
+import { createProduct,deleteProduct,updateProduct,AllProducts } from './productService.js';
 
 export const createProductController = async (req,res,next) => {    
     try{
@@ -41,4 +41,20 @@ export const updateProductController = async (req,res,next) => {
     catch(error){
         next(error);
     }
+
+   
 }
+
+ export const getProductsController = async (req,res) => {
+    try{
+        const Products = await AllProducts();
+        res.status(201).json({
+            success : true,
+            data : Products
+        })
+    }
+    catch(err){
+        next(err);
+    }
+
+    }

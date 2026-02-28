@@ -22,4 +22,13 @@ export const updateProduct = async(productId,productData) => {
         throw new Error('Product Cant Be Updated');
     }
     return updatedProduct;
+};
+
+
+export const AllProducts = async () => {
+    const Product = await productModel.find();
+    if(Product.length < 1){
+       return new Error ('There Are No Products');
+    }
+    return Product;
 }
